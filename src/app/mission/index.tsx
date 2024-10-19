@@ -8,15 +8,7 @@ import TaskCard from "@/components/TaskCard";
 import ReferralCard from "@/components/ReferralCard";
 
 const MissionPage: React.FC = () => {
-  const [days, _setDays] = useState([
-    true,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-  ]);
+  const [days] = useState([true, false, false, false, false, false, false]);
   const [referralLink, setReferralLink] = useState("");
   const nextDayIndex = days.findIndex((day) => !day);
 

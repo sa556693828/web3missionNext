@@ -8,6 +8,7 @@ import lumi from "@/assets/logos/lumi.svg";
 import { PiRocketLaunch } from "react-icons/pi";
 import { MdArrowForward } from "react-icons/md";
 import { useRouter } from "next/navigation";
+import { createClient } from "@/utils/supabase/client";
 
 const HomePage: React.FC = () => {
   const router = useRouter();
@@ -18,6 +19,12 @@ const HomePage: React.FC = () => {
     nietzsche.src,
     lumi.src,
   ];
+  const supabase = createClient();
+  const getData = async () => {
+    const { data, error } = await supabase.from("test").select("*");
+    console.log(data, error);
+  };
+
   return (
     <div className="flex h-[calc(100vh-144px)] w-full flex-col items-center justify-center">
       <main className="flex w-full flex-col items-center justify-center p-8 text-center">
@@ -26,7 +33,7 @@ const HomePage: React.FC = () => {
             <PiRocketLaunch className="text-[#FF7A00]" size={14} />
             <span className="text-xs font-semibold">ODYSSEY</span>
           </div>
-          <span className="text-sm text-[#FAFAFA]">
+          <span className="text-sm text-[#FAFAFA]" onClick={getData}>
             Start your adventure now!
           </span>
         </div>

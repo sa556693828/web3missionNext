@@ -1,4 +1,3 @@
-// @ts-ignore
 "use client";
 import React from "react";
 import homePagePic from "@/assets/homePage.png";

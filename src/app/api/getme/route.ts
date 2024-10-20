@@ -1,19 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "../auth/[...nextauth]/route"; // 请确保路径正确
+import { authOptions } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
 
-  if (!session || !session.accessToken) {
+  if (!session || !session.twitterAccessToken) {
     return NextResponse.json({ error: "未授权" }, { status: 401 });
   }
 
   try {
     const response = await axios.get("https://api.twitter.com/2/users/me", {
       headers: {
-        Authorization: `Bearer ${session.accessToken}`,
+        Authorization: `Bearer ${session.twitterAccessToken}`,
         "User-Agent": "v2UserLookupJS",
       },
       params: {

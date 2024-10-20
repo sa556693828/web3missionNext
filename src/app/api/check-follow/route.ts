@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "../auth/[...nextauth]/route"; // 请确保路径正确
+import { authOptions } from "@/lib/auth";
 
 const PAN_ECOSYSTEM_ID = process.env.OFFICIAL_TWITTER_ID; // 您的官方账号ID
 const BEARER_TOKEN = process.env.BEARER_TOKEN; // 您的Twitter开发者账号的Bearer Token

@@ -1,3 +1,4 @@
+// @ts-ignore
 "use client";
 import React from "react";
 import homePagePic from "@/assets/homePage.png";
@@ -6,6 +7,26 @@ import { FaTelegram } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import { usePathname } from "next/navigation";
 import { SessionProvider } from "next-auth/react";
+import {
+  ConnectProvider,
+  OKXConnector,
+  UnisatConnector,
+  BitgetConnector,
+  TokenPocketConnector,
+  BybitConnector,
+  WizzConnector,
+  XverseConnector,
+} from "@particle-network/btc-connectkit"; // eslint-disable-line @typescript-eslint/no-unused-vars
+import {
+  Merlin,
+  BEVM,
+  MAPProtocol,
+  Mantle,
+  BitlayerTestnet,
+  PolygonzkEVMCardona,
+} from "@particle-network/chains"; // eslint-disable-line @typescript-eslint/no-unused-vars
+import Header from "../Header"; // eslint-disable-line @typescript-eslint/no-unused-vars
+
 interface BasicLayoutProps {
   children: React.ReactNode;
 }
@@ -25,23 +46,7 @@ const BasicLayout: React.FC<BasicLayoutProps> = ({ children }) => {
           backgroundPosition: "center",
         }}
       >
-        <nav className="bg-gray-800 flex h-[72px] w-full max-w-[1200px] items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="h-9 w-11 rounded bg-[#585858]"></div>
-            <span className="font-chakra text-base">PAYMENTS ACCELERATION</span>
-          </div>
-          <button className="h-[41px] w-[150px] rounded-[10px] bg-[#FAFAFA] text-sm font-semibold text-black">
-            Introducing PAN
-          </button>
-          {/* <div>
-          <Link to="/" className="mr-4 text-white">
-            Home
-          </Link>
-          <Link to="/mission" className="text-white">
-            mission
-          </Link>
-        </div> */}
-        </nav>
+        {/* <Header /> */}
         {/* Main Content */}
         <main className="w-full flex-grow">{children}</main>
         {/* Footer */}
@@ -58,6 +63,45 @@ const BasicLayout: React.FC<BasicLayoutProps> = ({ children }) => {
         )}
       </div>
     </SessionProvider>
+    // <ConnectProvider
+    //   options={{
+    //     projectId: process.env.NEXT_PUBLIC_PROJECT_ID || "", // -
+    //     clientKey: process.env.NEXT_PUBLIC_CLIENT_KEY || "", // Retrieved from https://dashboard.particle.network
+    //     appId: process.env.NEXT_PUBLIC_APP_ID || "", // -
+    //     aaOptions: {
+    //       accountContracts: {
+    //         BTC: [
+    //           {
+    //             chainIds: [Merlin.id, BEVM.id, MAPProtocol.id],
+    //             version: "1.0.0",
+    //           },
+    //           {
+    //             chainIds: [
+    //               BitlayerTestnet.id,
+    //               PolygonzkEVMCardona.id,
+    //               Mantle.id,
+    //             ],
+    //             version: "2.0.0",
+    //           },
+    //         ],
+    //       },
+    //     },
+    //     walletOptions: {
+    //       visible: false,
+    //     },
+    //   }}
+    //   connectors={[
+    //     new UnisatConnector(),
+    //     new OKXConnector(),
+    //     // new BitgetConnector(),
+    //     // new TokenPocketConnector(),
+    //     // new BybitConnector(),
+    //     // new WizzConnector(),
+    //     new XverseConnector(),
+    //   ]}
+    // >
+
+    // </ConnectProvider>
   );
 };
 

@@ -52,9 +52,9 @@ const HomePage: React.FC = () => {
             onClick={() => {
               router.push("/mission");
             }}
-            className="flex h-[54px] cursor-pointer items-center gap-2 rounded-2xl bg-[#FF7A00] px-6 text-xl font-extrabold text-white transition-opacity hover:opacity-80"
+            className="flex h-[54px] cursor-pointer items-center gap-2 rounded-2xl bg-[#FF7A00] px-6 text-xl font-extrabold italic text-white transition-opacity hover:opacity-80"
           >
-            Start Journey
+            <i>Start Journey</i>
             <MdArrowForward size={24} />
           </button>
           <button className="h-[54px] cursor-pointer rounded bg-transparent px-6 text-xl font-semibold text-white/60 transition-opacity hover:opacity-80">

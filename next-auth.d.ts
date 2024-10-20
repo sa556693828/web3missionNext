@@ -2,7 +2,8 @@ import NextAuth from "next-auth";
 
 declare module "next-auth" {
   interface Session {
-    accessToken?: string;
+    twitterAccessToken?: string;
+    discordAccessToken?: string;
     user: {
       /** The user's ID from the Twitter API */
       id: string;
@@ -12,6 +13,7 @@ declare module "next-auth" {
   }
 
   interface JWT {
-    accessToken?: string;
+    twitterAccessToken?: string;
+    discordAccessToken?: string;
   }
 }

@@ -3,7 +3,7 @@ import check from "@/assets/check.svg";
 const TaskCard: React.FC<{
   icon: React.ReactNode;
   text: React.ReactNode;
-  buttonText: string;
+  buttonText: React.ReactNode;
   onClick: () => void;
   className?: string;
   isDone?: boolean;
@@ -19,7 +19,7 @@ const TaskCard: React.FC<{
       <img src={check.src} alt="check" className="size-7" />
     ) : (
       <button
-        className="h-[44px] cursor-pointer rounded-[10px] bg-white px-6 text-sm font-semibold text-black transition-opacity hover:opacity-80"
+        className="h-[44px] px-6 cursor-pointer rounded-[10px] bg-white text-sm font-semibold text-black transition-opacity hover:opacity-80"
         onClick={onClick}
       >
         {buttonText}

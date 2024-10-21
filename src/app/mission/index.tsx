@@ -1,57 +1,158 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import point from "@/assets/point.svg";
 import { FaTelegram } from "react-icons/fa";
-import { FaXTwitter } from "react-icons/fa6";
 import DailyPoint from "@/components/DailyPoint";
-import TaskCard from "@/components/TaskCard";
 import ReferralCard from "@/components/ReferralCard";
-import { signIn, signOut, useSession } from "next-auth/react";
 import { createClient } from "@/utils/supabase/client";
+import toast from "react-hot-toast";
+import MissionCard from "@/components/MissionCard";
+import { useAccounts } from "@particle-network/btc-connectkit";
 
 const MissionPage: React.FC = () => {
+  const { accounts } = useAccounts();
   const supabase = createClient();
-  const [days] = useState([false, false, false, false, false, false, false]);
   const [referralLink, setReferralLink] = useState("");
-  const nextDayIndex = days.findIndex((day) => !day);
-  const { data: session, status } = useSession();
+  const [isLogin, setIsLogin] = useState(false);
+  const [points, setPoints] = useState(0);
+  const [user, setUser] = useState<User | null>(null);
+
   const handleLogout = async () => {
-    await signOut();
+    console.log("logout");
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (!error) {
+        setIsLogin(false);
+        setUser(null);
+      }
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
   };
   const signInWithTwitter = async () => {
     try {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "twitter",
+        options: {
+          redirectTo: process.env.NEXT_PUBLIC_APP_URL + "/mission",
+        },
       });
-      console.log("data", data);
+      if (error) {
+        toast.error(`請稍等60秒後再試`);
+        return;
+      }
     } catch (error) {
       console.error("Error signing in with Twitter:", error);
     }
   };
-  const getUser = async () => {
+  const checkLogin = async () => {
     try {
-      const { data, error } = await supabase.from("tasks").select("*");
-      console.log("data", data);
-      console.log("error", error);
+      const { data, error } = await supabase.auth.getUser();
+      if (data.user) {
+        await createUser(data.user);
+        setIsLogin(true);
+        const user = await getUser(data.user.id);
+        setUser(user as User);
+      } else {
+        setIsLogin(false);
+      }
+    } catch (error) {
+      console.error("Error checking login:", error);
+    }
+  };
+  const createUser = async (user: any) => {
+    try {
+      const userId = user?.id;
+      const userTwitterId = user?.user_metadata.provider_id;
+      const userName = user?.user_metadata.preferred_username;
+      const existingUser = await getUser(userId);
+      let error2;
+      if (existingUser) {
+        const { error: updateError } = await supabase
+          .from("users")
+          .update({
+            wallet_addr: "",
+            twitter_id: userTwitterId,
+            name: userName,
+            status: 1,
+            created_at: new Date().toISOString(),
+          })
+          .eq("user_id", userId);
+        error2 = updateError;
+      } else {
+        const { error: insertError } = await supabase.from("users").insert({
+          user_id: userId,
+          wallet_addr: "",
+          twitter_id: userTwitterId,
+          name: userName,
+          status: 1,
+          created_at: new Date().toISOString(),
+        });
+        error2 = insertError;
+      }
+
+      if (error2) {
+        toast.error("登入至服務器失敗");
+        console.error(error2);
+        return;
+      }
+    } catch (error) {
+      console.error("Error creating user:", error);
+    }
+  };
+  const getUser = async (userId: string) => {
+    try {
+      const { data: existingUser, error: selectError } = await supabase
+        .from("users")
+        .select("user_id")
+        .eq("user_id", userId)
+        .single();
+      if (selectError && selectError.code !== "PGRST116") {
+        console.error(selectError);
+        toast.error("檢查用戶時出錯");
+        return;
+      }
+      if (existingUser) {
+        return existingUser;
+      }
     } catch (error) {
       console.error("Error fetching tasks:", error);
     }
   };
-  if (status === "loading") {
-    return (
-      <div className="mx-auto flex min-h-[calc(100vh-72px)] w-full max-w-[1200px] flex-col items-center justify-between">
-        Loading...
-      </div>
-    );
-  }
-  if (!session) {
+  const getPoints = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("task_user")
+        .select("task_point")
+        .eq("user_id", user?.user_id);
+      if (error) {
+        console.error(error);
+        toast.error("get points error");
+        return;
+      }
+      const points = data.reduce((acc: number, curr: any) => {
+        return acc + curr.task_point;
+      }, 0);
+      setPoints(points);
+    } catch (error) {
+      console.error("get points error:", error);
+    }
+  };
+
+  useEffect(() => {
+    getPoints();
+  }, [user]);
+
+  useEffect(() => {
+    checkLogin();
+  }, []);
+
+  if (!isLogin || !user) {
     return (
       <div className="mx-auto flex min-h-[calc(100vh-72px)] w-full max-w-[1200px] flex-col items-center justify-center">
-        {/* Main Content */}
         <p>Please login twitter first</p>
         <button
           className="mt-2 h-[44px] cursor-pointer rounded-[10px] bg-[#343434] px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-80"
-          // onClick={() => signIn("twitter")}
           onClick={signInWithTwitter}
         >
           Login
@@ -65,32 +166,7 @@ const MissionPage: React.FC = () => {
       <div className="mt-4 flex w-full flex-col gap-8">
         <div className="flex w-full gap-8">
           <div className="flex w-2/3 flex-col gap-4">
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="bg-text-orange-gradient bg-clip-text text-subtitle text-transparent">
-                Daily check event
-              </h2>
-              <button
-                className="h-[49px] w-[162px] rounded-[10px] bg-white text-sm font-semibold text-black"
-                onClick={() => {
-                  if (session) {
-                    console.log("session", session);
-                  } else {
-                    signIn("twitter");
-                  }
-                }}
-              >
-                Check - Out
-              </button>
-            </div>
-            <div className="flex w-full justify-between space-x-4">
-              {days.map((checked, index) => (
-                <DailyPoint
-                  key={index}
-                  checked={checked}
-                  isNext={index === nextDayIndex}
-                />
-              ))}
-            </div>
+            <DailyPoint user={user} getPoints={getPoints} />
           </div>
           <div className="flex w-1/3 flex-1 flex-col items-center">
             <div className="mb-4">
@@ -104,7 +180,7 @@ const MissionPage: React.FC = () => {
             <div className="mb-4">
               <h2
                 className="font-poppins text-content text-white"
-                onClick={handleLogout}
+                // onClick={handleLogout}
               >
                 Task bridge
               </h2>
@@ -118,74 +194,22 @@ const MissionPage: React.FC = () => {
         <div className="flex w-full flex-col gap-4">
           <p className="text-base font-semibold">Get 50 Points</p>
           <div className="grid grid-cols-2 gap-4">
-            <TaskCard
-              icon={<FaXTwitter className="text-white" size={24} />}
-              text={
-                <span>
-                  Follow{" "}
-                  <a
-                    href={process.env.NEXT_PUBLIC_X_LINK}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="cursor-pointer text-white underline underline-offset-2 transition-opacity hover:opacity-80"
-                  >
-                    @Pan_Ecosystem
-                  </a>{" "}
-                  on Twitter
-                </span>
-              }
-              buttonText="Follow"
-              onClick={() => {
-                getUser();
-              }}
-              className=""
+            <MissionCard
+              taskName="Twitter"
+              userId={user?.user_id}
+              getPoints={getPoints}
             />
-            <TaskCard
-              icon={<FaTelegram className="text-white" size={24} />}
-              text={
-                <span>
-                  Join{" "}
-                  <a
-                    href={process.env.NEXT_PUBLIC_TELEGRAM_LINK}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="cursor-pointer text-white underline underline-offset-2 transition-opacity hover:opacity-80"
-                  >
-                    @Pan_Eco
-                  </a>{" "}
-                  on Telegram
-                </span>
-              }
-              buttonText="Join"
-              onClick={() => {
-                // window.open("https://twitter.com/Pan_Ecosystem", "_blank");
-              }}
-              isDone={true}
-              className=""
+            <MissionCard
+              taskName="Telegram"
+              userId={user?.user_id}
+              getPoints={getPoints}
             />
           </div>
           <div className="grid grid-cols-1">
-            <TaskCard
-              icon={<FaTelegram className="text-white" size={24} />}
-              text={
-                <span>
-                  Join Discord{" "}
-                  <a
-                    href={process.env.NEXT_PUBLIC_DISCORD_LINK}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="cursor-pointer text-white underline underline-offset-2 transition-opacity hover:opacity-80"
-                  >
-                    {process.env.NEXT_PUBLIC_DISCORD_LINK}
-                  </a>{" "}
-                  and Verify
-                </span>
-              }
-              buttonText="Join"
-              onClick={() => {
-                // window.open("https://twitter.com/Pan_Ecosystem", "_blank");
-              }}
-              className=""
+            <MissionCard
+              taskName="Discord"
+              userId={user?.user_id}
+              getPoints={getPoints}
             />
           </div>
           <p className="mt-4 text-base font-semibold">
@@ -209,17 +233,27 @@ const MissionPage: React.FC = () => {
       {/* Footer */}
       <div className="flex h-[112px] w-full max-w-[1200px] items-center justify-between border-t-2 border-white/10">
         <div className="flex items-center gap-6">
-          <button className="h-[44px] cursor-pointer rounded-[10px] bg-[#343434] px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-80">
+          <button
+            onClick={() => {
+              window.open(process.env.NEXT_PUBLIC_X_LINK, "_blank");
+            }}
+            className="h-[44px] cursor-pointer rounded-[10px] bg-[#343434] px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-80"
+          >
             Connect X
           </button>
-          <button className="h-[44px] cursor-pointer rounded-[10px] bg-[#343434] px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-80">
+          <button
+            onClick={() => {
+              window.open(process.env.NEXT_PUBLIC_TELEGRAM_LINK, "_blank");
+            }}
+            className="h-[44px] cursor-pointer rounded-[10px] bg-[#343434] px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-80"
+          >
             Connect Telegram
           </button>
         </div>
         <div className="flex items-center">
           <span className="mr-2 text-xl">Your Points:</span>
           <img src={point.src} alt="point" className="size-10" />
-          <span className="text-[32px] font-bold text-[#FF7A00]">1,500</span>
+          <span className="text-[32px] font-bold text-[#FF7A00]">{points}</span>
         </div>
       </div>
     </div>

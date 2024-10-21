@@ -59,12 +59,14 @@ const DailyPoint: React.FC<{ user: User | null; getPoints: () => void }> = ({
         return;
       }
       const today = new Date().toISOString().split("T")[0];
+
       const { data: existingCheck, error: checkError } = await supabase
         .from("task_user")
         .select("*")
         .eq("user_id", user.user_id)
         .eq("task_name", "daily_check")
         .gte("created_at", today)
+        .lt("created_at", today + "T23:59:59.999Z")
         .maybeSingle();
 
       if (checkError) {

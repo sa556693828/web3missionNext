@@ -13,7 +13,7 @@ interface Task {
   id: string;
   created_at: string;
   name: string;
-  point: number;
+  points: number;
   status: number;
 }
 

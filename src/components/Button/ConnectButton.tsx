@@ -76,7 +76,6 @@ const ConnectButton: React.FC = () => {
   // };
   const checkWalletConnection = async () => {
     if (accounts.length > 0) {
-      console.log("accounts", accounts);
       const newWalletAddress = accounts[0];
 
       // 检查新的钱包地址是否与之前的不同
@@ -111,6 +110,7 @@ const ConnectButton: React.FC = () => {
 
   const handleDisconnect = async () => {
     await disconnect?.();
+    handleLogout();
     setIsConnected(false);
     setWalletAddress("");
     setShowModal(false);

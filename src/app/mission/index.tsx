@@ -167,7 +167,6 @@ const MissionPage: React.FC = () => {
         toast.error("get inviter error");
         return;
       }
-
       const inviterPoints = (inviterData?.length || 0) * 150;
       const taskPoints = data.reduce((acc: number, curr: any) => {
         return acc + curr.task_point;
@@ -179,11 +178,10 @@ const MissionPage: React.FC = () => {
       console.error("get points error:", error);
     }
   };
-  // const getUser = async () => {
-  //   const { data, error } = await supabase.auth.getUser(); // user table 沒資料，則檢查是否登入
-  //   console.log(data);
-  // };
-
+  const getUser = async () => {
+    const { data, error } = await supabase.auth.getUser(); // user table 沒資料，則檢查是否登入
+    console.log(data);
+  };
   useEffect(() => {
     getPoints();
   }, [user]);
@@ -259,7 +257,7 @@ const MissionPage: React.FC = () => {
               <h2
                 className="font-poppins text-content text-white"
                 // onClick={handleLogout}
-                // onClick={getUser}
+                onClick={getUser}
               >
                 Task bridge
               </h2>

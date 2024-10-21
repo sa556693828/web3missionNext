@@ -132,16 +132,16 @@ const MissionCard: React.FC<{
           user_wallet: user?.wallet_addr,
           task_name: taskName,
           user_id: userId,
-          task_point: task.point,
+          task_point: task.points,
           status: 1,
         }),
       ]);
-      toast.success("mission done");
+      toast.success("Mission Done");
       checkIsDone();
       getPoints();
     } catch (error) {
-      console.error("mission error:", error);
-      toast.error("mission error");
+      console.error("Mission Error:", error);
+      toast.error("Mission Error");
     } finally {
       setIsLoading(false);
     }
@@ -158,7 +158,12 @@ const MissionCard: React.FC<{
         setIsDone(false);
         return;
       }
-      setIsDone(true);
+      const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000);
+      const isCompleted = data.some(
+        (task) => new Date(task.create_time) < twoMinutesAgo
+      );
+
+      setIsDone(isCompleted);
     } catch (error) {
       console.error("isDone error:", error);
     }

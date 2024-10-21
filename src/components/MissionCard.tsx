@@ -135,6 +135,7 @@ const MissionCard: React.FC<{
           task_point: task.points,
           status: 1,
         }),
+        { onConflict: "user_id,task_name", ignoreDuplicates: false },
       ]);
       toast.success("Mission Done");
       checkIsDone();

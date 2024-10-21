@@ -74,7 +74,7 @@ const socialTasks: SocialTask[] = [
 ];
 
 const MissionCard: React.FC<{
-  userId: string;
+  userId?: string;
   taskName: "Twitter" | "Discord" | "Telegram";
   getPoints: () => void;
 }> = ({ userId, taskName, getPoints }) => {
@@ -164,6 +164,9 @@ const MissionCard: React.FC<{
     }
   };
   useEffect(() => {
+    if (!userId) {
+      return;
+    }
     getUser(userId);
     getTask();
     checkIsDone();

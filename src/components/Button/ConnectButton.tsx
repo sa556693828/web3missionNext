@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useAccounts, useConnectModal } from "@particle-network/btc-connectkit";
 import { createClient } from "@/utils/supabase/client";
 import { useUser } from "@/hooks/useUser";
+import toast from "react-hot-toast";
 
 const ConnectButton: React.FC = () => {
   const [isConnected, setIsConnected] = useState(false);
@@ -26,12 +27,68 @@ const ConnectButton: React.FC = () => {
         .eq("user_id", user?.user_id);
     }
   };
+  // const getUserByWallet = async (user_wallet: string) => {
+  //   try {
+  //     const { data: existingUser, error: selectError } = await supabase
+  //       .from("users")
+  //       .select("*")
+  //       .eq("wallet_addr", user_wallet)
+  //       .single();
+  //     if (selectError && selectError.code !== "PGRST116") {
+  //       console.error(selectError);
+  //       toast.error("check user error");
+  //       return;
+  //     }
+  //     if (existingUser) {
+  //       return existingUser;
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching tasks:", error);
+  //   }
+  // };
+  // const createUser = async (user_wallet: string) => {
+  //   try {
+  //     // const userId = user?.id;
+  //     // const userTwitterId = user?.user_metadata.provider_id;
+  //     // const userName = user?.user_metadata.preferred_username;
+  //     const existingUser = await getUserByWallet(user_wallet);
+  //     let error2;
+  //     if (existingUser) {
+  //       const { error: updateError } = await supabase
+  //         .from("users")
+  //         .update({
+  //           wallet_addr: user_wallet,
+  //           status: 1,
+  //         })
+  //         .eq("user_id", existingUser.user_id);
+  //       error2 = updateError;
+  //     } else {
+  //       const { error: insertError } = await supabase.from("users").insert({
+  //         user_id: "",
+  //         wallet_addr: user_wallet,
+  //         twitter_id: "",
+  //         name: "",
+  //         status: 1,
+  //         created_at: new Date().toISOString(),
+  //       });
+  //       error2 = insertError;
+  //     }
 
-  const checkWalletConnection = () => {
+  //     if (error2) {
+  //       toast.error("login to server error");
+  //       console.error(error2);
+  //       return;
+  //     }
+  //   } catch (error) {
+  //     console.error("Error creating user:", error);
+  //   }
+  // };
+  const checkWalletConnection = async () => {
     if (accounts.length > 0) {
       console.log("accounts", accounts);
       setIsConnected(true);
       setWalletAddress(accounts[0]);
+      // await createUser(accounts[0]);
     } else {
       setIsConnected(false);
       setWalletAddress("");
@@ -74,7 +131,7 @@ const ConnectButton: React.FC = () => {
 
       {showModal && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100]"
           onClick={() => setShowModal(false)}
         >
           <div className="bg-[#212121] px-6 py-4 rounded-lg shadow-lg">
@@ -87,12 +144,12 @@ const ConnectButton: React.FC = () => {
               >
                 Disconnect
               </button>
-              <button
+              {/* <button
                 className="w-full p-2 bg-orange text-white rounded"
                 onClick={handleBindWallet}
               >
                 Bind Wallet
-              </button>
+              </button> */}
             </div>
           </div>
         </div>

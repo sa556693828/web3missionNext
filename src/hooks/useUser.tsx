@@ -36,7 +36,6 @@ export const useUser = () => {
         setUser(null);
       }
     } catch (error) {
-      console.error("not login:", error);
       setUser(null);
     } finally {
       setLoading(false);

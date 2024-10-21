@@ -34,7 +34,7 @@ const PointsCard: React.FC<{ checked: boolean; isNext: boolean }> = ({
     </div>
   );
 };
-const DailyPoint: React.FC<{ user: User; getPoints: () => void }> = ({
+const DailyPoint: React.FC<{ user: User | null; getPoints: () => void }> = ({
   user,
   getPoints,
 }) => {
@@ -55,7 +55,7 @@ const DailyPoint: React.FC<{ user: User; getPoints: () => void }> = ({
   const dailyCheck = async () => {
     try {
       setIsLoading(true);
-      if (isFinish) {
+      if (isFinish || !user) {
         return;
       }
       const today = new Date().toISOString().split("T")[0];
@@ -114,6 +114,9 @@ const DailyPoint: React.FC<{ user: User; getPoints: () => void }> = ({
   };
   const checkSevenDays = async () => {
     try {
+      if (!user) {
+        return;
+      }
       const { data: allChecks, error: allChecksError } = await supabase
         .from("task_user")
         .select("*")
@@ -164,6 +167,9 @@ const DailyPoint: React.FC<{ user: User; getPoints: () => void }> = ({
     }
   };
   useEffect(() => {
+    if (!user) {
+      return;
+    }
     checkHowManyDays();
     checkSevenDays();
   }, [user]);

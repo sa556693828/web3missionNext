@@ -2,7 +2,7 @@
 import React from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
-import logo from "@/assets/panLogo.jpeg";
+import logo from "@/assets/PAN_Logo.png";
 import ConnectButton from "../Button/ConnectButton";
 const Header: React.FC = () => {
   const router = useRouter();

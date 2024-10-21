@@ -13,7 +13,7 @@ const MissionPage: React.FC = () => {
   const { accounts } = useAccounts();
   const supabase = createClient();
   const [referralLink, setReferralLink] = useState("");
-  const [isLogin, setIsLogin] = useState(false);
+  const [isLogin, setIsLogin] = useState(true);
   const [points, setPoints] = useState(0);
   const [user, setUser] = useState<User | null>(null);
 
@@ -41,7 +41,6 @@ const MissionPage: React.FC = () => {
           redirectTo: redirectUrl,
         },
       });
-      console.log(data);
       if (error) {
         toast.error(`please try again later`);
         return;
@@ -76,7 +75,7 @@ const MissionPage: React.FC = () => {
         const { error: updateError } = await supabase
           .from("users")
           .update({
-            wallet_addr: "",
+            wallet_addr: accounts[0],
             twitter_id: userTwitterId,
             name: userName,
             status: 1,
@@ -87,7 +86,7 @@ const MissionPage: React.FC = () => {
       } else {
         const { error: insertError } = await supabase.from("users").insert({
           user_id: userId,
-          wallet_addr: "",
+          wallet_addr: accounts[0],
           twitter_id: userTwitterId,
           name: userName,
           status: 1,
@@ -149,25 +148,40 @@ const MissionPage: React.FC = () => {
   }, [user]);
 
   useEffect(() => {
-    checkLogin();
-  }, []);
+    if (accounts.length > 0) {
+      checkLogin();
+    }
+  }, [accounts]);
 
-  if (!isLogin || !user) {
-    return (
-      <div className="mx-auto flex min-h-[calc(100vh-72px)] w-full max-w-[1200px] flex-col items-center justify-center">
-        <p>Please login twitter first</p>
-        <button
-          className="mt-2 h-[44px] cursor-pointer rounded-[10px] bg-[#343434] px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-80"
-          onClick={signInWithTwitter}
-        >
-          Login
-        </button>
-      </div>
-    );
-  }
   return (
-    <div className="mx-auto flex min-h-[calc(100vh-72px)] w-full max-w-[1200px] flex-col items-center justify-between">
+    <div className="mx-auto relative flex min-h-[calc(100vh-72px)] w-full max-w-[1200px] flex-col items-center justify-between">
       {/* Main Content */}
+      {(!isLogin || accounts.length === 0) && (
+        <div className="absolute top-0 left-0 flex items-center justify-center w-full h-full bg-black/50 z-50">
+          <div className="flex m-auto flex-col items-center justify-center h-1/3 aspect-[2/1] rounded-2xl px-10 bg-[#1A1A1A] ">
+            {accounts.length === 0 ? (
+              <>
+                <p className="text-white text-2xl font-semibold">
+                  Please connect wallet first
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="text-white text-2xl font-semibold">
+                  Please login twitter
+                </p>
+                <button
+                  className="mt-2 h-[44px] cursor-pointer rounded-[10px] bg-[#343434] px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-80"
+                  onClick={signInWithTwitter}
+                >
+                  Login
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
       <div className="mt-4 flex w-full flex-col gap-8">
         <div className="flex w-full gap-8">
           <div className="flex w-2/3 flex-col gap-4">

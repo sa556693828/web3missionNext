@@ -82,6 +82,7 @@ const MissionCard: React.FC<{
   const supabase = createClient();
   const [task, setTask] = useState<Task | null>(null);
   const [isDone, setIsDone] = useState<boolean>(false);
+  const [isDisabled, setIsDisabled] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
   const { accounts } = useAccounts();
@@ -166,7 +167,10 @@ const MissionCard: React.FC<{
       const isCompleted = data.some(
         (task) => new Date(task.create_time) < twoMinutesAgo
       );
-
+      const isRecentlyCompleted = data.some(
+        (task) => new Date(task.create_time) >= twoMinutesAgo
+      );
+      setIsDisabled(isCompleted || isRecentlyCompleted);
       setIsDone(isCompleted);
     } catch (error) {
       console.error("isDone error:", error);
@@ -185,7 +189,11 @@ const MissionCard: React.FC<{
       icon={taskContent?.icon}
       text={taskContent?.text}
       buttonText={isLoading ? <div className="loader" /> : "Join"}
-      onClick={() => doTask()}
+      disabled={isDisabled}
+      onClick={() => {
+        window.open(taskContent?.link, "_blank");
+        doTask();
+      }}
       className=""
       isDone={isDone}
     />

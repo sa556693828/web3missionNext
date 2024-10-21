@@ -86,7 +86,7 @@ const BasicLayout: React.FC<BasicLayoutProps> = ({ children }) => {
         >
           <Header />
           {/* Main Content */}
-          <main className="w-full flex-grow">{children}</main>
+          <main className="w-full flex-grow pt-[72px]">{children}</main>
           {/* Footer */}
           {pathname === "/" && (
             <footer className="flex h-[72px] w-full max-w-[1200px] items-center justify-between">

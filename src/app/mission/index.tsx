@@ -148,6 +148,7 @@ const MissionPage: React.FC = () => {
   };
   const getPoints = async () => {
     try {
+      // TODO: 拿points時，限制只能拿幾次
       const { data, error } = await supabase
         .from("task_user")
         .select("task_point")
@@ -215,7 +216,7 @@ const MissionPage: React.FC = () => {
       {/* Main Content */}
       {(!isLogin || accounts.length === 0) && (
         <div className="absolute top-0 left-0 flex items-center justify-center w-full h-full bg-black/50 z-50">
-          <div className="flex m-auto flex-col items-center justify-center h-1/3 aspect-[2/1] rounded-2xl px-10 bg-[#1A1A1A] ">
+          <div className="flex m-auto flex-col items-center justify-center h-1/5 aspect-[2/1] rounded-2xl px-10 bg-[#1A1A1A] ">
             {accounts.length === 0 ? (
               <>
                 <p className="text-white text-2xl font-semibold">
@@ -289,7 +290,10 @@ const MissionPage: React.FC = () => {
               getPoints={getPoints}
             />
           </div>
-          <p className="mt-4 text-base font-semibold" onClick={handleLogout}>
+          <p
+            className="mt-4 text-base font-semibold"
+            // onClick={handleLogout}
+          >
             Every 1 Referral: Get 150 Points
           </p>
           <div className="grid grid-cols-1">
@@ -307,7 +311,7 @@ const MissionPage: React.FC = () => {
       {/* Footer */}
       <div className="flex h-[112px] w-full max-w-[1200px] items-center justify-between border-t-2 border-white/10">
         <div className="flex items-center gap-6">
-          <button
+          {/* <button
             onClick={() => {
               window.open(process.env.NEXT_PUBLIC_X_LINK, "_blank");
             }}
@@ -322,7 +326,7 @@ const MissionPage: React.FC = () => {
             className="h-[44px] cursor-pointer rounded-[10px] bg-[#343434] px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-80"
           >
             Connect Telegram
-          </button>
+          </button> */}
         </div>
         <div className="flex items-center">
           <span className="mr-2 text-xl">Your Points:</span>

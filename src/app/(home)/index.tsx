@@ -57,9 +57,9 @@ const HomePage: React.FC = () => {
             <i>Start Journey</i>
             <MdArrowForward size={24} />
           </button>
-          <button className="h-[54px] cursor-pointer rounded bg-transparent px-6 text-xl font-semibold text-white/60 transition-opacity hover:opacity-80">
+          {/* <button className="h-[54px] cursor-pointer rounded bg-transparent px-6 text-xl font-semibold text-white/60 transition-opacity hover:opacity-80">
             Learn More
-          </button>
+          </button> */}
         </div>
       </main>
       <section className="mt-20">

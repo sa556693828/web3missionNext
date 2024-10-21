@@ -1,5 +1,5 @@
+import toast from "react-hot-toast";
 import { PiCopyBold } from "react-icons/pi";
-
 const ReferralCard: React.FC<{
   icon: React.ReactNode;
   text: React.ReactNode;
@@ -22,6 +22,7 @@ const ReferralCard: React.FC<{
           className="flex cursor-pointer items-center gap-2 rounded-lg bg-[#131313] px-4 py-2 hover:opacity-80"
           onClick={() => {
             navigator.clipboard.writeText(referralLink);
+            toast.success("Copied");
           }}
         >
           <p className="font-poppins text-xl text-white hover:opacity-80">

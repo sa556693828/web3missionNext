@@ -9,6 +9,8 @@ import toast from "react-hot-toast";
 import MissionCard from "@/components/MissionCard";
 import { useAccounts } from "@particle-network/btc-connectkit";
 import { decodeReferralCode, generateReferralCode } from "@/lib/code";
+import { User as SupabaseUser } from "@supabase/supabase-js";
+import { getUserByID, getUserByWallet } from "@/lib/getData";
 
 const MissionPage: React.FC = () => {
   const { accounts } = useAccounts();
@@ -37,7 +39,6 @@ const MissionPage: React.FC = () => {
         process.env.NODE_ENV === "production"
           ? process.env.NEXT_PUBLIC_APP_URL + "/mission"
           : "http://localhost:3004/mission";
-      console.log(redirectUrl);
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "twitter",
         options: {
@@ -52,80 +53,105 @@ const MissionPage: React.FC = () => {
       console.error("Error signing in with Twitter:", error);
     }
   };
-  const checkLogin = async () => {
+  const signInWithPassword = async () => {
     try {
-      const { data, error } = await supabase.auth.getUser();
-      if (data.user) {
-        await createUser(data.user);
-        setIsLogin(true);
-        const user = await getUser(data.user.id);
-        setUser(user as User);
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: "example@email.com",
+        password: "example-password",
+      });
+      if (error) {
+        toast.error(`please try again later`);
+        return;
+      }
+    } catch (error) {
+      console.error("Error signing in with Twitter:", error);
+    }
+  };
+  const checkBindedTwitter = async (walletAddr: string) => {
+    try {
+      const { data: user, error } = await supabase
+        .from("users")
+        .select("*")
+        .eq("wallet_addr", walletAddr)
+        .single();
+
+      if (user?.twitter_id) {
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Error checking binded twitter:", error);
+    }
+  };
+  const checkLogin = async (walletAddr: string) => {
+    try {
+      const isBinded = await checkBindedTwitter(walletAddr); // 檢查是否綁定過X
+      if (!isBinded) {
+        const { data, error } = await supabase.auth.getUser(); // user table 沒資料，則檢查是否登入
+        if (data.user) {
+          await createUserDB(data.user);
+          const { error: updateError } = await supabase.auth.updateUser({
+            password: data.user.id,
+          });
+          if (updateError) {
+            console.error(`error update password`);
+            return;
+          }
+          const user = await getUserByID(data.user.id);
+          setUser(user as User);
+          setIsLogin(true);
+        } else {
+          setIsLogin(false);
+        }
       } else {
-        setIsLogin(false);
+        // 以綁定過X，則一樣先檢查是否登入，沒登入的話用帳號密碼登入
+        const { data, error } = await supabase.auth.getUser();
+        if (data.user) {
+          const DBuser = await getUserByID(data.user.id);
+          setUser(DBuser as User);
+          setIsLogin(true);
+        } else {
+          const userData = await getUserByWallet(accounts[0]);
+          const { error } = await supabase.auth.signInWithPassword({
+            email: userData?.email,
+            password: userData?.user_id,
+          });
+          if (error) {
+            toast.error(`error sign in`);
+            return;
+          }
+          setUser(userData as User);
+          setIsLogin(true);
+        }
       }
     } catch (error) {
       console.error("Error checking login:", error);
     }
   };
-  const createUser = async (user: any) => {
+  const createUserDB = async (user: SupabaseUser) => {
     try {
       const userId = user?.id;
       const userTwitterId = user?.user_metadata.provider_id;
       const userName = user?.user_metadata.preferred_username;
-      const existingUser = await getUser(userId);
-      let error2;
-      if (existingUser) {
-        return;
-        // const { error: updateError } = await supabase
-        //   .from("users")
-        //   .update({
-        //     wallet_addr: accounts[0],
-        //     twitter_id: userTwitterId,
-        //     name: userName,
-        //     status: 1,
-        //     created_at: new Date().toISOString(),
-        //   })
-        //   .eq("user_id", userId);
-        // error2 = updateError;
-      } else {
-        const { error: insertError } = await supabase.from("users").insert({
-          user_id: userId,
-          wallet_addr: accounts[0],
-          twitter_id: userTwitterId,
-          name: userName,
-          status: 1,
-          inviter: referralCode,
-          created_at: new Date().toISOString(),
-        });
-        error2 = insertError;
-      }
+      const userEmail = user?.email;
+      const { error: insertError } = await supabase.from("users").insert({
+        user_id: userId,
+        wallet_addr: accounts[0],
+        twitter_id: userTwitterId,
+        name: userName,
+        status: 1,
+        inviter: referralCode,
+        email: userEmail,
+        created_at: new Date().toISOString(),
+      });
 
-      if (error2) {
+      if (insertError) {
         toast.error("login to server error");
-        console.error(error2);
+        console.error(insertError);
         return;
       }
     } catch (error) {
       console.error("Error creating user:", error);
-    }
-  };
-  const getUser = async (userId: string) => {
-    try {
-      const { data: existingUser, error: selectError } = await supabase
-        .from("users")
-        .select("user_id")
-        .eq("user_id", userId)
-        .single();
-      if (selectError && selectError.code !== "PGRST116") {
-        console.error(selectError);
-        toast.error("check user error");
-        return;
-      }
-      if (existingUser) {
-        return existingUser;
-      }
-    } catch (error) {
-      console.error("Error fetching tasks:", error);
     }
   };
   const getPoints = async () => {
@@ -161,6 +187,10 @@ const MissionPage: React.FC = () => {
       console.error("get points error:", error);
     }
   };
+  const getUser = async () => {
+    const { data, error } = await supabase.auth.getUser(); // user table 沒資料，則檢查是否登入
+    console.log(data);
+  };
 
   useEffect(() => {
     getPoints();
@@ -168,9 +198,9 @@ const MissionPage: React.FC = () => {
 
   useEffect(() => {
     if (accounts.length > 0) {
-      checkLogin();
+      checkLogin(accounts[0]);
     }
-  }, [accounts]);
+  }, [accounts, isLogin]);
 
   useEffect(() => {
     const cookies = document.cookie.split(";");
@@ -237,6 +267,7 @@ const MissionPage: React.FC = () => {
               <h2
                 className="font-poppins text-content text-white"
                 // onClick={handleLogout}
+                // onClick={getUser}
               >
                 Task bridge
               </h2>

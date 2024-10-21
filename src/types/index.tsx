@@ -5,6 +5,8 @@ interface User {
   twitter_id: string;
   status: number;
   inviter?: string;
+  created_at: string;
+  email: string;
 }
 
 interface Task {

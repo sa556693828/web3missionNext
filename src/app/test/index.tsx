@@ -42,6 +42,23 @@ const CheckFollow = () => {
     });
     console.log(data);
   }
+  const checkBindedTwitter = async (walletAddr: string) => {
+    try {
+      const { data: user, error } = await supabase
+        .from("users")
+        .select("*")
+        .eq("wallet_addr", walletAddr)
+        .single();
+
+      console.log(user);
+      if (user?.twitter_id) {
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Error checking binded twitter:", error);
+    }
+  };
   const fetchTwitterUser = async () => {
     try {
       const response = await fetch("/api/getme");
@@ -85,6 +102,18 @@ const CheckFollow = () => {
           登录
         </button>
         <button onClick={() => signIn("twitter")}>Sign in with Twitter</button>
+        <button
+          className="bg-blue-500 my-2 px-2"
+          onClick={async () =>
+            console.log(
+              await checkBindedTwitter(
+                "bc1qdamw4y3u5czdz8s8f4lzfyegefd8rsgw7tmhvf"
+              )
+            )
+          }
+        >
+          asd
+        </button>
       </>
     );
   }

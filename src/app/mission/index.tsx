@@ -53,20 +53,6 @@ const MissionPage: React.FC = () => {
       console.error("Error signing in with Twitter:", error);
     }
   };
-  const signInWithPassword = async () => {
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: "example@email.com",
-        password: "example-password",
-      });
-      if (error) {
-        toast.error(`please try again later`);
-        return;
-      }
-    } catch (error) {
-      console.error("Error signing in with Twitter:", error);
-    }
-  };
   const checkBindedTwitter = async (walletAddr: string) => {
     try {
       const { data: user, error } = await supabase
@@ -134,21 +120,27 @@ const MissionPage: React.FC = () => {
       const userTwitterId = user?.user_metadata.provider_id;
       const userName = user?.user_metadata.preferred_username;
       const userEmail = user?.email;
-      const { error: insertError } = await supabase.from("users").insert({
-        user_id: userId,
-        wallet_addr: accounts[0],
-        twitter_id: userTwitterId,
-        name: userName,
-        status: 1,
-        inviter: referralCode,
-        email: userEmail,
-        created_at: new Date().toISOString(),
-      });
-
-      if (insertError) {
-        toast.error("login to server error");
-        console.error(insertError);
+      const existingUser = await getUserByID(userId);
+      let error2;
+      if (existingUser) {
         return;
+      } else {
+        const { error: insertError } = await supabase.from("users").insert({
+          user_id: userId,
+          wallet_addr: accounts[0],
+          twitter_id: userTwitterId,
+          name: userName,
+          status: 1,
+          inviter: referralCode,
+          email: userEmail,
+          created_at: new Date().toISOString(),
+        });
+
+        if (insertError) {
+          toast.error("login to server error");
+          console.error(insertError);
+          return;
+        }
       }
     } catch (error) {
       console.error("Error creating user:", error);
@@ -187,10 +179,10 @@ const MissionPage: React.FC = () => {
       console.error("get points error:", error);
     }
   };
-  const getUser = async () => {
-    const { data, error } = await supabase.auth.getUser(); // user table 沒資料，則檢查是否登入
-    console.log(data);
-  };
+  // const getUser = async () => {
+  //   const { data, error } = await supabase.auth.getUser(); // user table 沒資料，則檢查是否登入
+  //   console.log(data);
+  // };
 
   useEffect(() => {
     getPoints();
@@ -299,7 +291,7 @@ const MissionPage: React.FC = () => {
               getPoints={getPoints}
             />
           </div>
-          <p className="mt-4 text-base font-semibold">
+          <p className="mt-4 text-base font-semibold" onClick={handleLogout}>
             Every 1 Referral: Get 150 Points
           </p>
           <div className="grid grid-cols-1">

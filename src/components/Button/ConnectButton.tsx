@@ -18,15 +18,6 @@ const ConnectButton: React.FC = () => {
     checkWalletConnection();
   }, [accounts]);
 
-  const updateWalletAddr = async () => {
-    if (accounts.length > 0) {
-      const walletAddr = accounts[0];
-      await supabase
-        .from("users")
-        .update({ wallet_addr: walletAddr })
-        .eq("user_id", user?.user_id);
-    }
-  };
   // const getUserByWallet = async (user_wallet: string) => {
   //   try {
   //     const { data: existingUser, error: selectError } = await supabase
@@ -86,15 +77,29 @@ const ConnectButton: React.FC = () => {
   const checkWalletConnection = async () => {
     if (accounts.length > 0) {
       console.log("accounts", accounts);
+      const newWalletAddress = accounts[0];
+
+      // 检查新的钱包地址是否与之前的不同
+      if (isConnected && walletAddress !== newWalletAddress) {
+        // 钱包地址已更改，要求重新登录
+        handleLogout();
+        return;
+      }
+
       setIsConnected(true);
-      setWalletAddress(accounts[0]);
-      // await createUser(accounts[0]);
+      setWalletAddress(newWalletAddress);
     } else {
       setIsConnected(false);
       setWalletAddress("");
     }
   };
-
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
+  };
   const onOpenConnectModal = async () => {
     if (isConnected) {
       setShowModal(true);
@@ -112,7 +117,13 @@ const ConnectButton: React.FC = () => {
   };
 
   const handleBindWallet = async () => {
-    await updateWalletAddr();
+    if (accounts.length > 0) {
+      const walletAddr = accounts[0];
+      await supabase
+        .from("users")
+        .update({ wallet_addr: walletAddr })
+        .eq("user_id", user?.user_id);
+    }
     setShowModal(false);
   };
 

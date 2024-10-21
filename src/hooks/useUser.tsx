@@ -36,8 +36,7 @@ export const useUser = () => {
         setUser(null);
       }
     } catch (error) {
-      console.error("獲取用戶數據時出錯:", error);
-      toast.error("獲取用戶數據時出錯");
+      console.error("not login:", error);
       setUser(null);
     } finally {
       setLoading(false);

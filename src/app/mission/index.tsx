@@ -31,13 +31,17 @@ const MissionPage: React.FC = () => {
   };
   const signInWithTwitter = async () => {
     try {
-      console.log("signInWithTwitter", process.env.NEXT_PUBLIC_APP_URL);
+      const redirectUrl =
+        process.env.NODE_ENV === "production"
+          ? process.env.NEXT_PUBLIC_APP_URL + "/mission"
+          : "http://localhost:3004/mission";
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "twitter",
         options: {
-          redirectTo: process.env.NEXT_PUBLIC_APP_URL + "/mission",
+          redirectTo: redirectUrl,
         },
       });
+      console.log(data);
       if (error) {
         toast.error(`please try again later`);
         return;

@@ -31,6 +31,7 @@ const MissionPage: React.FC = () => {
   };
   const signInWithTwitter = async () => {
     try {
+      console.log("signInWithTwitter", process.env.NEXT_PUBLIC_APP_URL);
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "twitter",
         options: {
@@ -38,7 +39,7 @@ const MissionPage: React.FC = () => {
         },
       });
       if (error) {
-        toast.error(`請稍等60秒後再試`);
+        toast.error(`please try again later`);
         return;
       }
     } catch (error) {
@@ -92,7 +93,7 @@ const MissionPage: React.FC = () => {
       }
 
       if (error2) {
-        toast.error("登入至服務器失敗");
+        toast.error("login to server error");
         console.error(error2);
         return;
       }
@@ -109,7 +110,7 @@ const MissionPage: React.FC = () => {
         .single();
       if (selectError && selectError.code !== "PGRST116") {
         console.error(selectError);
-        toast.error("檢查用戶時出錯");
+        toast.error("check user error");
         return;
       }
       if (existingUser) {

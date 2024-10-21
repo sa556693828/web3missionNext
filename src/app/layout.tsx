@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   title: "PANPAY",
   description: "PANPAY official website",
   icons: {
-    icon: "/assets/PAN_Logo.png",
+    icon: "/favicon.ico",
   },
 };
 

@@ -5,6 +5,7 @@ import { FaXTwitter } from "react-icons/fa6";
 import TaskCard from "@/components/TaskCard";
 import { createClient } from "@/utils/supabase/client";
 import toast from "react-hot-toast";
+import { useAccounts } from "@particle-network/btc-connectkit";
 
 interface SocialTask {
   name: string;
@@ -83,6 +84,7 @@ const MissionCard: React.FC<{
   const [isDone, setIsDone] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
+  const { accounts } = useAccounts();
   const taskContent = socialTasks.find((t) => t.name === taskName);
 
   const getTask = async () => {
@@ -125,11 +127,12 @@ const MissionCard: React.FC<{
     if (!task) return;
     setIsLoading(true);
     try {
+      console.log(user);
       await Promise.all([
         new Promise((resolve) => setTimeout(resolve, 2000)),
         supabase.from("task_user").insert({
           task_id: task.id,
-          user_wallet: user?.wallet_addr,
+          user_wallet: accounts[0],
           task_name: taskName,
           user_id: userId,
           task_point: task.points,

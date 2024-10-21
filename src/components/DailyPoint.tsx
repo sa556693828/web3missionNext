@@ -96,7 +96,7 @@ const DailyPoint: React.FC<{ user: User | null; getPoints: () => void }> = ({
         user_wallet: user?.wallet_addr,
         task_id: task?.id,
         task_name: task?.name,
-        task_point: task?.point,
+        task_point: task?.points,
         status: 1,
         created_at: new Date().toISOString(),
       });

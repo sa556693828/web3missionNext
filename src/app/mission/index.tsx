@@ -8,11 +8,13 @@ import { createClient } from "@/utils/supabase/client";
 import toast from "react-hot-toast";
 import MissionCard from "@/components/MissionCard";
 import { useAccounts } from "@particle-network/btc-connectkit";
+import { decodeReferralCode, generateReferralCode } from "@/lib/code";
 
 const MissionPage: React.FC = () => {
   const { accounts } = useAccounts();
   const supabase = createClient();
   const [referralLink, setReferralLink] = useState("");
+  const [referralCode, setReferralCode] = useState("");
   const [isLogin, setIsLogin] = useState(true);
   const [points, setPoints] = useState(0);
   const [user, setUser] = useState<User | null>(null);
@@ -35,6 +37,7 @@ const MissionPage: React.FC = () => {
         process.env.NODE_ENV === "production"
           ? process.env.NEXT_PUBLIC_APP_URL + "/mission"
           : "http://localhost:3004/mission";
+      console.log(redirectUrl);
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "twitter",
         options: {
@@ -72,17 +75,18 @@ const MissionPage: React.FC = () => {
       const existingUser = await getUser(userId);
       let error2;
       if (existingUser) {
-        const { error: updateError } = await supabase
-          .from("users")
-          .update({
-            wallet_addr: accounts[0],
-            twitter_id: userTwitterId,
-            name: userName,
-            status: 1,
-            created_at: new Date().toISOString(),
-          })
-          .eq("user_id", userId);
-        error2 = updateError;
+        return;
+        // const { error: updateError } = await supabase
+        //   .from("users")
+        //   .update({
+        //     wallet_addr: accounts[0],
+        //     twitter_id: userTwitterId,
+        //     name: userName,
+        //     status: 1,
+        //     created_at: new Date().toISOString(),
+        //   })
+        //   .eq("user_id", userId);
+        // error2 = updateError;
       } else {
         const { error: insertError } = await supabase.from("users").insert({
           user_id: userId,
@@ -90,6 +94,7 @@ const MissionPage: React.FC = () => {
           twitter_id: userTwitterId,
           name: userName,
           status: 1,
+          inviter: referralCode,
           created_at: new Date().toISOString(),
         });
         error2 = insertError;
@@ -134,10 +139,24 @@ const MissionPage: React.FC = () => {
         toast.error("get points error");
         return;
       }
-      const points = data.reduce((acc: number, curr: any) => {
+      const { data: inviterData, error: inviterError } = await supabase
+        .from("users")
+        .select("id")
+        .eq("inviter", user?.user_id);
+
+      if (inviterError) {
+        console.error("inviter error:", inviterError);
+        toast.error("get inviter error");
+        return;
+      }
+
+      const inviterPoints = (inviterData?.length || 0) * 150;
+      const taskPoints = data.reduce((acc: number, curr: any) => {
         return acc + curr.task_point;
       }, 0);
-      setPoints(points);
+
+      const totalPoints = taskPoints + inviterPoints;
+      setPoints(totalPoints);
     } catch (error) {
       console.error("get points error:", error);
     }
@@ -152,6 +171,24 @@ const MissionPage: React.FC = () => {
       checkLogin();
     }
   }, [accounts]);
+
+  useEffect(() => {
+    const cookies = document.cookie.split(";");
+    const referralCookie = cookies.find((cookie) =>
+      cookie.trim().startsWith("referralCode=")
+    );
+    if (referralCookie) {
+      setReferralCode(referralCookie.split("=")[1]);
+    }
+  }, []);
+
+  const getReferralLink = async (userId: string) => {
+    // const code = generateReferralCode(userId);
+    // console.log(code);
+    // const exCode = decodeReferralCode("mc9izfp5");
+    // console.log(exCode);
+    setReferralLink(`${process.env.NEXT_PUBLIC_APP_URL}/invite/${userId}`);
+  };
 
   return (
     <div className="mx-auto relative flex min-h-[calc(100vh-72px)] w-full max-w-[1200px] flex-col items-center justify-between">
@@ -240,15 +277,12 @@ const MissionPage: React.FC = () => {
               text={<span>Referral link</span>}
               buttonText="Generate"
               referralLink={referralLink}
-              onClick={() => {
-                setReferralLink("https://ReferralLink/invite/dayuwbdiw8ub");
-              }}
+              onClick={() => getReferralLink(user?.user_id as string)}
               className=""
             />
           </div>
         </div>
       </div>
-
       {/* Footer */}
       <div className="flex h-[112px] w-full max-w-[1200px] items-center justify-between border-t-2 border-white/10">
         <div className="flex items-center gap-6">

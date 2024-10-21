@@ -133,16 +133,16 @@ const MissionCard: React.FC<{
           task_name: taskName,
           user_id: userId,
           task_point: task.points,
+          unitTask: userId + taskName,
           status: 1,
         }),
-        { onConflict: "user_id,task_name", ignoreDuplicates: false },
       ]);
-      toast.success("Mission Done");
+      toast.success("Mission verifying...");
       checkIsDone();
       getPoints();
     } catch (error) {
       console.error("Mission Error:", error);
-      toast.error("Mission Error");
+      toast.error("Mission verifying...");
     } finally {
       setIsLoading(false);
     }

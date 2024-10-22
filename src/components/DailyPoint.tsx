@@ -105,8 +105,8 @@ const DailyPoint: React.FC<{ user: User | null; getPoints: () => void }> = ({
         toast.error("daily check error");
         return;
       }
-      await getPoints();
       await checkHowManyDays();
+      await getPoints();
       toast.success("Daily check success");
     } catch (error) {
       console.error("daily check error:", error);

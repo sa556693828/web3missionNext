@@ -153,7 +153,7 @@ const MissionPage: React.FC = () => {
       // TODO: 拿points時，限制只能拿幾次
       const { data, error } = await supabase
         .from("task_user")
-        .select("task_point")
+        .select("*")
         .eq("user_id", user?.user_id);
       if (error) {
         console.error(error);
@@ -170,8 +170,18 @@ const MissionPage: React.FC = () => {
         toast.error("get inviter error");
         return;
       }
+      const now = new Date().getTime();
+      const validTasks = data.filter((task) => {
+        if (task.task_name === "daily_check") {
+          return true; // 'daily_check' 任务直接返回 true，不进行时间检查
+        }
+        const createdTime = new Date(task.created_at).getTime();
+        const isOverOneMinute = now - createdTime >= 60 * 1000;
+        return isOverOneMinute;
+      });
+
       const inviterPoints = (inviterData?.length || 0) * 150;
-      const taskPoints = data.reduce((acc: number, curr: any) => {
+      const taskPoints = validTasks.reduce((acc: number, curr: any) => {
         return acc + curr.task_point;
       }, 0);
 

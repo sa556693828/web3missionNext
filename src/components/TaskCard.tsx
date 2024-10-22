@@ -18,15 +18,23 @@ const TaskCard: React.FC<{
       <span className="text-xl">{text}</span>
     </div>
     {isDone ? (
-      <img src={check.src} alt="check" className="size-7" />
+      !disabled ? (
+        <img src={check.src} alt="check" className="size-7" />
+      ) : (
+        <button
+          className={cn(
+            `h-[44px] opacity-50 cursor-not-allowed px-6 rounded-[10px] bg-white text-sm font-semibold text-black`
+          )}
+        >
+          <div className="loader" />
+        </button>
+      )
     ) : (
       <button
         className={cn(
-          `h-[44px] px-6 cursor-pointer rounded-[10px] bg-white text-sm font-semibold text-black transition-opacity hover:opacity-80`,
-          disabled && "opacity-50 cursor-not-allowed"
+          `h-[44px] px-6 cursor-pointer rounded-[10px] bg-white text-sm font-semibold text-black transition-opacity hover:opacity-80`
         )}
         onClick={onClick}
-        disabled={disabled}
       >
         {buttonText}
       </button>

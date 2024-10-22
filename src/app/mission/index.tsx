@@ -8,7 +8,6 @@ import { createClient } from "@/utils/supabase/client";
 import toast from "react-hot-toast";
 import MissionCard from "@/components/MissionCard";
 import { useAccounts } from "@particle-network/btc-connectkit";
-import { decodeReferralCode, generateReferralCode } from "@/lib/code";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { getUserByID, getUserByWallet } from "@/lib/getData";
 
@@ -16,7 +15,6 @@ const MissionPage: React.FC = () => {
   const { accounts } = useAccounts();
   const supabase = createClient();
   const [referralLink, setReferralLink] = useState("");
-  const [referralCode, setReferralCode] = useState("");
   const [isLogin, setIsLogin] = useState(true);
   const [points, setPoints] = useState(0);
   const [user, setUser] = useState<User | null>(null);
@@ -116,6 +114,10 @@ const MissionPage: React.FC = () => {
   };
   const createUserDB = async (user: SupabaseUser) => {
     try {
+      const cookies = document.cookie.split(";");
+      const referralCookie = cookies.find((cookie) =>
+        cookie.trim().startsWith("referralCode=")
+      );
       const userId = user?.id;
       const userTwitterId = user?.user_metadata.provider_id;
       const userName = user?.user_metadata.preferred_username;
@@ -131,7 +133,7 @@ const MissionPage: React.FC = () => {
           twitter_id: userTwitterId,
           name: userName,
           status: 1,
-          inviter: referralCode,
+          inviter: referralCookie ? referralCookie?.split("=")[1] : "",
           email: userEmail,
           created_at: new Date().toISOString(),
         });
@@ -192,17 +194,6 @@ const MissionPage: React.FC = () => {
       checkLogin(accounts[0]);
     }
   }, [accounts, isLogin]);
-
-  useEffect(() => {
-    const cookies = document.cookie.split(";");
-    const referralCookie = cookies.find((cookie) =>
-      cookie.trim().startsWith("referralCode=")
-    );
-    if (referralCookie) {
-      setReferralCode(referralCookie.split("=")[1]);
-    }
-  }, []);
-
   const getReferralLink = async (userId: string) => {
     // const code = generateReferralCode(userId);
     // console.log(code);

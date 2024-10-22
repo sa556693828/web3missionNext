@@ -62,7 +62,7 @@ const HomePage: React.FC = () => {
           </button> */}
         </div>
       </main>
-      <section className="mt-20">
+      {/* <section className="mt-20">
         <h3 className="mb-6 text-center text-xl text-white/60">Supported By</h3>
         <div className="flex w-[80vw] justify-between gap-4">
           {partners.map((partner) => (
@@ -71,7 +71,7 @@ const HomePage: React.FC = () => {
             </div>
           ))}
         </div>
-      </section>
+      </section> */}
     </div>
   );
 };

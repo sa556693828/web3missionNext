@@ -128,7 +128,6 @@ const MissionCard: React.FC<{
     if (!task) return;
     setIsLoading(true);
     try {
-      console.log(user);
       await Promise.all([
         new Promise((resolve) => setTimeout(resolve, 2000)),
         supabase.from("task_user").insert({
@@ -156,22 +155,20 @@ const MissionCard: React.FC<{
       const { data, error } = await supabase
         .from("task_user")
         .select("*")
-        .eq("user_id", userId)
-        .eq("task_name", taskName);
+        .eq("unitTask", userId + taskName)
+        .single();
 
-      if (error || !data || data.length === 0) {
+      if (error || !data) {
         setIsDone(false);
         return;
       }
-      const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000);
-      const isCompleted = data.some(
-        (task) => new Date(task.create_time) < twoMinutesAgo
-      );
-      const isRecentlyCompleted = data.some(
-        (task) => new Date(task.create_time) >= twoMinutesAgo
-      );
-      setIsDisabled(isCompleted || isRecentlyCompleted);
-      setIsDone(isCompleted);
+      const createdTime = new Date(data.created_at).getTime();
+      const createdTimeAfterOneMinutes = createdTime + 1 * 60 * 1000;
+      const now = new Date(Date.now()).getTime();
+      const isOverOneMinutes = now >= createdTimeAfterOneMinutes;
+
+      setIsDisabled(!isOverOneMinutes);
+      setIsDone(true);
     } catch (error) {
       console.error("isDone error:", error);
     }
@@ -190,12 +187,12 @@ const MissionCard: React.FC<{
       text={taskContent?.text}
       buttonText={isLoading ? <div className="loader" /> : "Join"}
       disabled={isDisabled}
+      isDone={isDone}
       onClick={() => {
         window.open(taskContent?.link, "_blank");
         doTask();
       }}
       className=""
-      isDone={isDone}
     />
   );
 };

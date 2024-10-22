@@ -21,6 +21,7 @@ const MissionPage: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [refresh, setRefresh] = useState(false);
   const [isRotating, setIsRotating] = useState(false);
+  const [hasGeneratedLink, setHasGeneratedLink] = useState(false);
 
   const handleLogout = async () => {
     console.log("logout");
@@ -212,12 +213,34 @@ const MissionPage: React.FC = () => {
     }
   }, [accounts, isLogin]);
   const getReferralLink = async (userId: string) => {
-    // const code = generateReferralCode(userId);
-    // console.log(code);
-    // const exCode = decodeReferralCode("mc9izfp5");
-    // console.log(exCode);
-    setReferralLink(`${process.env.NEXT_PUBLIC_APP_URL}/invite/${userId}`);
+    const link = `${process.env.NEXT_PUBLIC_APP_URL}/invite/${userId}`;
+    setReferralLink(link);
+    setHasGeneratedLink(true);
+
+    // 设置 cookie
+    document.cookie = `referralLinkGenerated=true; path=/; max-age=${
+      60 * 60 * 24 * 30
+    }`; // 30天有效期
+    document.cookie = `referralLink=${link}; path=/; max-age=${
+      60 * 60 * 24 * 30
+    }`;
   };
+
+  useEffect(() => {
+    // 检查 cookie 是否存在已生成的推荐链接
+    const cookies = document.cookie.split(";");
+    const generatedCookie = cookies.find((cookie) =>
+      cookie.trim().startsWith("referralLinkGenerated=")
+    );
+    const linkCookie = cookies.find((cookie) =>
+      cookie.trim().startsWith("referralLink=")
+    );
+
+    if (generatedCookie && linkCookie) {
+      setHasGeneratedLink(true);
+      setReferralLink(linkCookie.split("=")[1]);
+    }
+  }, []);
 
   return (
     <div className="mx-auto relative flex min-h-[calc(100vh-72px)] w-full max-w-[1200px] flex-col items-center justify-between">
@@ -323,7 +346,11 @@ const MissionPage: React.FC = () => {
               text={<span>Referral link</span>}
               buttonText="Generate"
               referralLink={referralLink}
-              onClick={() => getReferralLink(user?.user_id as string)}
+              onClick={() =>
+                hasGeneratedLink
+                  ? navigator.clipboard.writeText(referralLink)
+                  : getReferralLink(user?.user_id as string)
+              }
               className=""
             />
           </div>

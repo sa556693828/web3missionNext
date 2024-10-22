@@ -10,6 +10,7 @@ import MissionCard from "@/components/MissionCard";
 import { useAccounts } from "@particle-network/btc-connectkit";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { getUserByID, getUserByWallet } from "@/lib/getData";
+import { IoReload } from "react-icons/io5";
 
 const MissionPage: React.FC = () => {
   const { accounts } = useAccounts();
@@ -18,6 +19,8 @@ const MissionPage: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [points, setPoints] = useState(0);
   const [user, setUser] = useState<User | null>(null);
+  const [refresh, setRefresh] = useState(false);
+  const [isRotating, setIsRotating] = useState(false);
 
   const handleLogout = async () => {
     console.log("logout");
@@ -193,12 +196,16 @@ const MissionPage: React.FC = () => {
   };
   const getUser = async () => {
     const { data, error } = await supabase.auth.getUser(); // user table 沒資料，則檢查是否登入
-    console.log(data);
   };
   useEffect(() => {
     getPoints();
   }, [user]);
-
+  const handleReloadClick = () => {
+    setIsRotating(true);
+    setRefresh(!refresh);
+    getPoints();
+    setTimeout(() => setIsRotating(false), 1000); // 1秒后停止旋转
+  };
   useEffect(() => {
     if (accounts.length > 0) {
       checkLogin(accounts[0]);
@@ -271,17 +278,29 @@ const MissionPage: React.FC = () => {
           </div>
         </div>
         <div className="flex w-full flex-col gap-4">
-          <p className="text-base font-semibold">Get 50 Points</p>
+          <div className="flex items-center gap-2">
+            <p className="text-base font-semibold">Get 50 Points</p>
+
+            <IoReload
+              onClick={handleReloadClick}
+              className={`text-white cursor-pointer transition-all duration-100 ${
+                isRotating ? "rotate-360" : ""
+              }`}
+              size={20}
+            />
+          </div>
           <div className="grid grid-cols-2 gap-4">
             <MissionCard
               taskName="Twitter"
               userId={user?.user_id}
               getPoints={getPoints}
+              refresh={refresh}
             />
             <MissionCard
               taskName="Telegram"
               userId={user?.user_id}
               getPoints={getPoints}
+              refresh={refresh}
             />
           </div>
           <div className="grid grid-cols-1">
@@ -289,6 +308,7 @@ const MissionPage: React.FC = () => {
               taskName="Discord"
               userId={user?.user_id}
               getPoints={getPoints}
+              refresh={refresh}
             />
           </div>
           <p

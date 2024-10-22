@@ -100,6 +100,7 @@ const DailyPoint: React.FC<{ user: User | null; getPoints: () => void }> = ({
         status: 1,
         created_at: new Date().toISOString(),
       });
+
       if (error) {
         console.error("daily check error:", error);
         toast.error("daily check error");

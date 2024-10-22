@@ -91,3 +91,16 @@ body {
     box-shadow: 0.2em -0.2em 0 0 currentcolor;
   }
 }
+
+@keyframes spin360 {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.rotate-360 {
+  animation: spin360 1s ease-in-out;
+}

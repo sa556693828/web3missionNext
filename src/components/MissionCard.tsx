@@ -78,7 +78,8 @@ const MissionCard: React.FC<{
   userId?: string;
   taskName: "Twitter" | "Discord" | "Telegram";
   getPoints: () => void;
-}> = ({ userId, taskName, getPoints }) => {
+  refresh: boolean;
+}> = ({ userId, taskName, getPoints, refresh }) => {
   const supabase = createClient();
   const [task, setTask] = useState<Task | null>(null);
   const [isDone, setIsDone] = useState<boolean>(false);
@@ -180,7 +181,7 @@ const MissionCard: React.FC<{
     getUser(userId);
     getTask();
     checkIsDone();
-  }, [userId]);
+  }, [userId, refresh]);
   return (
     <TaskCard
       icon={taskContent?.icon}

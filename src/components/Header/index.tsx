@@ -19,14 +19,18 @@ const Header: React.FC = () => {
 
   return (
     <nav
-      className={`flex fixed top-0 h-[72px] px-[5%] z-[200] w-full items-center justify-between transition-colors duration-300 ${isAtTop ? "bg-transparent" : "bg-black"}`}
+      className={`flex fixed top-0 h-[72px] px-[5%] z-[200] w-full items-center justify-between transition-colors duration-300 ${
+        isAtTop ? "bg-transparent" : "bg-black"
+      }`}
     >
       <div
         className="flex items-center gap-4 cursor-pointer "
         onClick={() => router.push("/")}
       >
         <Image src={logo} alt="logo" width={36} height={36} />
-        <span className="font-chakra text-base">PAYMENTS ACCELERATION</span>
+        <span className="font-chakra text-base">
+          PAYMENTS ACCELERATION NODES
+        </span>
       </div>
       {pathname === "/" ? (
         <></>

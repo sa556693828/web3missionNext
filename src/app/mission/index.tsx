@@ -76,13 +76,17 @@ const MissionPage: React.FC = () => {
       const isBinded = await checkBindedTwitter(walletAddr); // 檢查是否綁定過X
       if (!isBinded) {
         const { data, error } = await supabase.auth.getUser(); // user table 沒資料，則檢查是否登入
+        if (error) {
+          console.error("error get user", error);
+          return;
+        }
         if (data.user) {
           await createUserDB(data.user);
           const { error: updateError } = await supabase.auth.updateUser({
             password: data.user.id,
           });
           if (updateError) {
-            console.error(`error update password`);
+            console.error("error update password", updateError);
             return;
           }
           const user = await getUserByID(data.user.id);

@@ -14,8 +14,8 @@ const inter = Inter({ subsets: ["latin"] });
 // });
 
 export const metadata: Metadata = {
-  title: "PANPAY",
-  description: "PANPAY official website",
+  title: "PAN",
+  description: "PAN official website",
   icons: {
     icon: "/favicon.ico",
   },

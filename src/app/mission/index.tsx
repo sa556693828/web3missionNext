@@ -251,15 +251,18 @@ const MissionPage: React.FC = () => {
       {/* Main Content */}
       {(!isLogin || accounts.length === 0) && (
         <div className="absolute top-0 left-0 flex items-center justify-center w-full h-full bg-black/50 z-50">
-          <div className="flex m-auto flex-col items-center justify-center h-1/5 aspect-[2/1] rounded-2xl px-10 bg-[#1A1A1A] ">
+          <div className="flex m-auto flex-col items-center justify-center h-[30%] aspect-[2/1] rounded-2xl px-10 bg-[#1A1A1A] ">
             {accounts.length === 0 ? (
-              <>
+              <div className="flex flex-col items-center justify-center gap-4">
                 <p className="text-white text-2xl font-semibold">
-                  Please connect wallet first
+                  Connect Your Wallet
                 </p>
-              </>
+                <p className="text-white/60 text-base text-center">
+                  Connect your BTC wallet to join the event!
+                </p>
+              </div>
             ) : (
-              <>
+              <div className="flex flex-col items-center justify-center">
                 <p className="text-white text-2xl font-semibold">
                   Please login twitter
                 </p>
@@ -269,7 +272,7 @@ const MissionPage: React.FC = () => {
                 >
                   Login
                 </button>
-              </>
+              </div>
             )}
           </div>
         </div>
@@ -280,13 +283,13 @@ const MissionPage: React.FC = () => {
           <div className="flex w-2/3 flex-col gap-4">
             <DailyPoint user={user} getPoints={getPoints} />
           </div>
-          <div className="flex w-1/3 flex-1 flex-col items-center">
+          <div className="flex w-1/3 flex-1 flex-col items-start">
             <div className="mb-4">
               <h2 className="font-poppins text-content text-white">
-                Achievement bridge
+                Achievement Bridge
               </h2>
               <span className="text-base text-white/60">
-                Impact the rankings with missions and invitations.
+                Raise your rank with missions and invites!
               </span>
             </div>
             <div className="mb-4">
@@ -295,11 +298,11 @@ const MissionPage: React.FC = () => {
                 // onClick={handleLogout}
                 onClick={getUser}
               >
-                Task bridge
+                Task Bridge
               </h2>
               <span className="text-base text-white/60">
-                Start your journey of achievement by completing a series of
-                tasks through the Odyssey page.
+                Kickstart your journey by completing tasks on the Odyssey page
+                and unlock achievements along the way!
               </span>
             </div>
           </div>

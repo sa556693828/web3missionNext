@@ -42,6 +42,7 @@ const BasicLayout: React.FC<BasicLayoutProps> = ({ children }) => {
         projectId: process.env.NEXT_PUBLIC_PROJECT_ID_WALLET || "", // -
         clientKey: process.env.NEXT_PUBLIC_CLIENT_KEY_WALLET || "", // Retrieved from https://dashboard.particle.network
         appId: process.env.NEXT_PUBLIC_APP_ID_WALLET || "", // -
+
         aaOptions: {
           accountContracts: {
             BTC: [
@@ -64,6 +65,7 @@ const BasicLayout: React.FC<BasicLayoutProps> = ({ children }) => {
           visible: false,
         },
       }}
+      autoConnect={false}
       connectors={[
         new UnisatConnector(),
         new OKXConnector(),

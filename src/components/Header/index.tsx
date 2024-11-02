@@ -28,9 +28,7 @@ const Header: React.FC = () => {
         onClick={() => router.push("/")}
       >
         <Image src={logo} alt="logo" width={36} height={36} />
-        <span className="font-chakra text-base">
-          PAYMENTS ACCELERATION NODES
-        </span>
+        <span className="font-chakra text-base">PAN</span>
       </div>
       {pathname === "/" ? (
         <></>

@@ -20,10 +20,6 @@ const HomePage: React.FC = () => {
     lumi.src,
   ];
   const supabase = createClient();
-  const getData = async () => {
-    const { data, error } = await supabase.from("test").select("*");
-    console.log(data, error);
-  };
 
   return (
     <div className="flex h-[calc(100vh-144px)] w-full flex-col items-center justify-center">
@@ -33,19 +29,18 @@ const HomePage: React.FC = () => {
             <PiRocketLaunch className="text-[#FF7A00]" size={14} />
             <span className="text-xs font-semibold">ODYSSEY</span>
           </div>
-          <span className="text-sm text-[#FAFAFA]" onClick={getData}>
+          <span className="text-sm text-[#FAFAFA]">
             Start your adventure now!
           </span>
         </div>
         <h1 className="text-title bg-text-gray-gradient bg-clip-text text-transparent">
-          Payments Acceleration Nodes
+          PAN Odyssey
         </h1>
         <h2 className="text-title bg-text-orange-gradient bg-clip-text text-transparent">
           Campaign
         </h2>
         <p className="my-8 max-w-2xl text-base font-normal text-white/60">
-          Building Bitcoin node infrastructure for real-world payments. Fast,
-          secure, and permissionless with the Lightning Network.
+          {`Buckle up, adventurers—PAN Odyssey is taking off! You've made it here, and the Web3 journey is just getting started. Sit back, relax, and get ready for the ride!`}
         </p>
         <div className="mt-4 flex gap-4">
           <button
